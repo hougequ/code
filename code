@@ -1,0 +1,91 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <set>
+#include <unordered_map>
+
+using namespace std;
+
+// Function to analyze the image file
+void analyzeImage(const string& filename) {
+    // Open the file
+    ifstream file(filename);
+    string line;
+    int maxPixelValue = -1; // For PGM (Portable Gray Map)
+
+    // Check if the file is opened successfully
+    if (file.is_open()) {
+        // Read the first line to determine the image format (P1 or P2)
+        getline(file, line); // P1 or P2
+        // Check if the image format is correct
+        if (line != "P1" && line != "P2") {
+            cout << "Incorrect file format." << endl;
+            return;
+        }
+
+        bool isPBM = (line == "P1"); // Indicates if the image is PBM (Portable Bitmap)
+
+        int width, height;
+        // Read the width and height of the image
+        file >> width >> height;
+        // Display image dimensions
+        cout << "Image width: " << width << endl;
+        cout << "Image height: " << height << endl;
+
+        // If the image is not in PBM format, read the maximum pixel value
+        if (!isPBM) {
+            file >> maxPixelValue; // Maximum pixel value for PGM
+        }
+
+        // Store pixel values and their frequencies in an unordered map
+        unordered_map<int, int> colorFrequency;
+        int pixel;
+        while (file >> pixel) {
+            colorFrequency[pixel]++;
+        }
+
+        // Find the most frequent pixel color
+        int mostFrequentPixel = -1;
+        int maxFrequency = -1;
+        for (const auto& kvp : colorFrequency) {
+            if (kvp.second > maxFrequency) {
+                mostFrequentPixel = kvp.first;
+                maxFrequency = kvp.second;
+            }
+        }
+
+        // Display the most frequent pixel color and its frequency
+        cout << "Most frequent color is: " << mostFrequentPixel << " and it appeared " << maxFrequency << " times" << endl;
+        // Display the number of unique colors in the image
+        cout << "Number of unique colors: " << colorFrequency.size() << endl;
+    }
+    else {
+        // Display an error message if the file cannot be opened
+        cout << "Cannot open file." << endl;
+    }
+}
+
+// Main function
+int main() {
+    // Infinite loop to analyze multiple image files
+    while (true) {
+        string filename;
+        // Prompt the user to enter the filename
+        cout << "Enter the file name: ";
+        cin >> filename;
+
+        // Analyze the image file
+        analyzeImage(filename);
+
+        string answer;
+        // Ask the user if they want to load another file
+        cout << "Do you want to load another file (yes/no): ";
+        cin >> answer;
+        // If the user does not want to load another file, exit the loop
+        if (answer != "yes") {
+            break;
+        }
+    }
+
+    return 0;
+}
